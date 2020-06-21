@@ -23,4 +23,4 @@ Refresh page to reset board.
 - Too many objects on the board will make it start to become laggy
 
 
-Feel free to open Issues, or do Pull Requests!
+Feel free to open Issues, do Pull Requests, or make suggestions!
