@@ -1,7 +1,7 @@
 # Path of Exile Sacred Grove Simulator
 
 ## Info
-Simulator for the new Sacred Grove league in Path of Exile 3.11
+Simulator for the new Sacred Grove league mechanic in Path of Exile 3.11
 
 ## How to Use
 Press buttons to choose a type(Wild, Vivid, Primal), tier(1, 2, 3, 4), and a tile(Seed, Collector, Tank, Disperser, Pylon, Wire).
