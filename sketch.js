@@ -7,6 +7,7 @@ let currentTile, currentType, currentTier;
 let wildB, vividB, primalB;
 let t1, t2, t3, t4;
 let seedB, collectorB, tankB, disperserB, pylonB, wireB;
+let resetB;
 let currentSelection, info;
 let borderR;
 
@@ -75,6 +76,7 @@ function setup() {
   disperserB = createButton("DISPERSER").mousePressed(() => { currentTile = DISPERSER });
   pylonB = createButton("PYLON").mousePressed(() => { currentTile = PYLON });
   wireB = createButton("WIRE").mousePressed(() => { currentTile = WIRE });
+  resetB = createButton("RESET").mousePressed(() => { elements = []; updateURL(); });
 
   t1 = createButton("1").mousePressed(() => { currentTier = 1 });
   t2 = createButton("2").mousePressed(() => { currentTier = 2 });
@@ -89,6 +91,11 @@ function setup() {
 
   makeGrid();
   updateButtons();
+
+  let params = getURLParams();
+  if (params.length > 0)
+    elements = stringToElements(params.e);
+
   frameRate(60);
 }
 
@@ -172,6 +179,7 @@ function updateButtons() {
   disperserB.size(100, size);
   pylonB.size(100, size);
   wireB.size(100, size);
+  resetB.size(100, size);
 
   wildB.position(canvasX + width, 0);
   vividB.position(canvasX + width, size);
@@ -188,6 +196,7 @@ function updateButtons() {
   disperserB.position(canvasX + width, size * 7);
   pylonB.position(canvasX + width, size * 8);
   wireB.position(canvasX + width, size * 9);
+  resetB.position(canvasX + width, size * 39);
 }
 
 // Check if position is valid in the grid
@@ -254,7 +263,7 @@ function placeTile(x, y, tile, type, tier = 1) {
           case PRIMAL: elements.push(Wire(x, y, size, PRIMAL)); break;
         }
     }
-    elements[elements.length - 1].show();
+    updateURL();
   }
 }
 
@@ -266,10 +275,10 @@ function removeTile(x, y) {
     if (eX == x && eY == y) {
       makeGrid();
       elements.splice(i, 1);
+      updateURL();
       break;
     }
   }
-  elements.forEach(e => { e.show() });
 }
 
 // Draw a border at x,y
@@ -366,4 +375,25 @@ function mousePressed(event) {
 // Lazy handling
 function mouseDragged(event) {
   mousePressed(event);
+}
+
+function elementsToString() {
+  let s = '';
+  elements.forEach(e => { s += e.toString() + ',' });
+  return s;
+}
+
+function stringToElements(s) {
+  let e = [];
+  let a = s.split(',');
+  a.forEach(str => {
+    let t = tileFromString(str, size);
+    if (t != null) e.push(t);
+  });
+  return e;
+}
+
+// Update URL with element strings
+function updateURL() {
+  window.history.replaceState({}, null, '?e=' + elementsToString());
 }

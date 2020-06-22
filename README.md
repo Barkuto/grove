@@ -12,12 +12,14 @@ Ctrl Click or drag on the board to remove placed tiles.
 
 Save your layout by right clicking the board, and choosing "Save Image As"
 
-Refresh page to reset board.
+URL can also be shared to share your board with others, or to save your current work.
+
+Reset board with Reset button.
 
 
 ## To-Do
 - Better Wiring
-- Change URL based on elements added, so pages are shareable
+- ~~Change URL based on elements added, so pages are shareable~~
 
 ## Issues
 - Too many objects on the board will make it start to become laggy
