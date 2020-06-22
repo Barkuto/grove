@@ -7,7 +7,7 @@ let currentTile, currentType, currentTier;
 let wildB, vividB, primalB;
 let t1, t2, t3, t4;
 let seedB, collectorB, tankB, disperserB, pylonB, wireB;
-let currentSelection;
+let currentSelection, info;
 let borderR;
 
 let elements = [];
@@ -21,37 +21,37 @@ let gridString = [
   "1111000000000001110000000000000000000000",
   "1111000000000000010000000000000000000000",
   "1111000000000000110000000000000000000000",
-  "1111000000000000110000000000000000000000",
-  "1111000000000000110000000000000000000000",
-  "1111000000000000110000000000000000000000",
-  "1111001111111100111111111111000000000000",
-  "1111001111111100000011111111000000000000",
-  "1111001111000000000000000011000000111111",
+  "1111000000000000SS0000000000000000000000",
+  "1111000000000000SS0000000000000000000000",
+  "1111000000000000SS0000000000000000000000",
+  "1111001111S111001111111SSSSS000000000000",
+  "1111001111S111000000111SSSSS000000000000",
+  "11110011110000000000000000SS000000111111",
   "1111001111000000000000000011000000111111",
   "1111001111000000000000000011100000111111",
   "1111001111000000000000000011100000111111",
-  "1111000000000000011110000001111111111111",
-  "1111000001111001111111000000001111011111",
-  "1111000001111101111111000000000000001111",
-  "1111000001111100111111000000000000001111",
-  "1111000001111100011111000000000000001111",
+  "111100000000000001111000000111SSSS111111",
+  "111100000111100111111100000000SSSS011111",
+  "11110000011WW10CC11111000000000000001111",
+  "11110000011WW100111111000000000000001111",
+  "11110000011SS100011111000000000000001111",
   "1111000000000000001110000000000000001111",
   "1111000000000000000000000000000000001111",
   "1111000000000000000000000000000000001111",
   "1111000000000000000000000000000000111111",
   "1111000000000000000000000000000000111111",
-  "1100111111110000000000000000000000111111",
-  "1100111111110000000000000000000000111111",
-  "0000000000110000001111111111111111111111",
-  "0000000000110000001111001100111111111111",
+  "110011111S110000000000000000000000111111",
+  "110011111S110000000000000000000000111111",
+  "0000000000110000001SSS111111SSS111111111",
+  "0000000000110000001SSS001100SSS111111111",
   "0000000000110000001000000000000000111111",
   "0000000000110000001000000000000000111111",
-  "0000000000110000001000000000000000111111",
+  "0000000000SS0000001000000000000000111111",
   "0000000000110000001000000000000000111111",
   "1111000000110000001000000000000000111111",
   "1111000000110000001000000000000000111111",
-  "1111000000110000001100001111111111111111",
-  "1111000000110000001100001111111111111111",
+  "111100000011000000SS00001111111111111111",
+  "1111000000SS000000SS00001111111111111111",
   "1111111111111111111100111111111111111111",
   "1111111111111111111100111111111111111111"]
 
@@ -84,7 +84,8 @@ function setup() {
   borderR = createCheckbox('Show Borders', true);
   borderR.changed(() => { showBorders = !showBorders });
 
-  currentSelection = createElement('h2', currentType + ' ' + currentTile + ' ' + currentTier);
+  currentSelection = createElement('h2', currentType + '<br>' + currentTile + '<br>' + currentTier);
+  info = createElement('h3', 'Pylons can be connected<br>if within a 4 block square<br>radius of each other.');
 
   makeGrid();
   updateButtons();
@@ -110,9 +111,16 @@ function makeGrid() {
     r = gridString[i].split('');
     for (let j = 0; j < r.length; j++) {
       grid[i][j] = r[j];
-      if (r[j] == '0') {
-      } else if (r[j] == '1') {
-        fill(0);
+      if (r[j] != '0') {
+        if (r[j] == '1') {
+          fill(0);
+        } else if (r[j] == 'W') {
+          fill('blue');
+        } else if (r[j] == 'C') {
+          fill('brown');
+        } else if (r[j] == 'S') {
+          fill(70);
+        }
         rect(j * size, i * size, size, size);
       }
     }
@@ -127,7 +135,10 @@ function draw() {
 
   borderR.position(canvas.position().x + width, size * 10);
   currentSelection.position(canvas.position().x + width, height / 4);
+  info.position(canvas.position().x + width, height / 2.5);
+
   currentSelection.html(currentType + '<br>' + currentTile + '<br>' + currentTier);
+  info.html('Pylons can be connected<br>if within a 4 block square<br>radius of each other.');
 
   elements.forEach(e => { e.show() });
   if (showBorders)
@@ -185,9 +196,18 @@ function checkPos(x, y) {
     && y >= 0 && y < grid[0].length;
 }
 
+// Check if position is valid to palce a tile
+function canPlace(x, y, tile) {
+  return tile == WIRE
+    || (grid[y][x] != '1'
+      && grid[y][x] != 'W'
+      && grid[y][x] != 'C'
+      && grid[y][x] != 'S');
+}
+
 // Place a tile at x,y in the grid
 function placeTile(x, y, tile, type, tier = 1) {
-  if (checkPos(x, y) && (grid[y][x] != '1' || tile == WIRE)) {
+  if (checkPos(x, y) && canPlace(x, y, tile)) {
     let found = false;
     elements.forEach(e => { if (e.x == x && e.y == y) found = true });
     if (found) removeTile(x, y);
@@ -276,7 +296,7 @@ function drawBorders() {
 
 // Draw the preview of the currently selected tile
 function drawPreview(x, y, tile, type, tier = 1) {
-  if (checkPos(x, y) && (grid[y][x] != '1' || tile == WIRE)) {
+  if (checkPos(x, y) && canPlace(x, y, tile)) {
     let p;
     switch (tile) {
       case SEED:
